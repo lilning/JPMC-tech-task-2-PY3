@@ -1,0 +1,706 @@
+From f86b93d367af877894b9163150ba50c6c7917764 Mon Sep 17 00:00:00 2001
+From: lilning <63436166+lilning@users.noreply.github.com>
+Date: Wed, 22 Sep 2021 20:29:46 -0700
+Subject: [PATCH 2/2] Add task2
+
+---
+ .idea/.gitignore                              |   8 +
+ .idea/JPMC-tech-task-2-PY3.iml                |  12 +
+ .idea/inspectionProfiles/Project_Default.xml  |  13 +
+ .../inspectionProfiles/profiles_settings.xml  |   6 +
+ .idea/misc.xml                                |   4 +
+ .idea/modules.xml                             |   8 +
+ .idea/vcs.xml                                 |   6 +
+ install_nvm.sh                                | 425 ++++++++++++++++++
+ package.json                                  |  16 +-
+ src/App.tsx                                   |  29 +-
+ src/Graph.tsx                                 |  16 +-
+ 11 files changed, 531 insertions(+), 12 deletions(-)
+ create mode 100644 .idea/.gitignore
+ create mode 100644 .idea/JPMC-tech-task-2-PY3.iml
+ create mode 100644 .idea/inspectionProfiles/Project_Default.xml
+ create mode 100644 .idea/inspectionProfiles/profiles_settings.xml
+ create mode 100644 .idea/misc.xml
+ create mode 100644 .idea/modules.xml
+ create mode 100644 .idea/vcs.xml
+ create mode 100644 install_nvm.sh
+
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+index 0000000..73f69e0
+--- /dev/null
++++ b/.idea/.gitignore
+@@ -0,0 +1,8 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Datasource local storage ignored files
++/dataSources/
++/dataSources.local.xml
++# Editor-based HTTP Client requests
++/httpRequests/
+diff --git a/.idea/JPMC-tech-task-2-PY3.iml b/.idea/JPMC-tech-task-2-PY3.iml
+new file mode 100644
+index 0000000..8b8c395
+--- /dev/null
++++ b/.idea/JPMC-tech-task-2-PY3.iml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="PYTHON_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++  <component name="PyDocumentationSettings">
++    <option name="format" value="PLAIN" />
++    <option name="myDocStringFormat" value="Plain" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+new file mode 100644
+index 0000000..857d680
+--- /dev/null
++++ b/.idea/inspectionProfiles/Project_Default.xml
+@@ -0,0 +1,13 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
++      <option name="ignoredErrors">
++        <list>
++          <option value="N801" />
++          <option value="N802" />
++        </list>
++      </option>
++    </inspection_tool>
++  </profile>
++</component>
+\ No newline at end of file
+diff --git a/.idea/inspectionProfiles/profiles_settings.xml b/.idea/inspectionProfiles/profiles_settings.xml
+new file mode 100644
+index 0000000..105ce2d
+--- /dev/null
++++ b/.idea/inspectionProfiles/profiles_settings.xml
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <settings>
++    <option name="USE_PROJECT_PROFILE" value="false" />
++    <version value="1.0" />
++  </settings>
++</component>
+\ No newline at end of file
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+index 0000000..d56657a
+--- /dev/null
++++ b/.idea/misc.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9" project-jdk-type="Python SDK" />
++</project>
+\ No newline at end of file
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+index 0000000..f04cb23
+--- /dev/null
++++ b/.idea/modules.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/JPMC-tech-task-2-PY3.iml" filepath="$PROJECT_DIR$/.idea/JPMC-tech-task-2-PY3.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+index 0000000..94a25f7
+--- /dev/null
++++ b/.idea/vcs.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/install_nvm.sh b/install_nvm.sh
+new file mode 100644
+index 0000000..a6d96a6
+--- /dev/null
++++ b/install_nvm.sh
+@@ -0,0 +1,425 @@
++#!/usr/bin/env bash
++
++{ # this ensures the entire script is downloaded #
++
++nvm_has() {
++  type "$1" > /dev/null 2>&1
++}
++
++nvm_default_install_dir() {
++  [ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm"
++}
++
++nvm_install_dir() {
++  if [ -n "$NVM_DIR" ]; then
++    printf %s "${NVM_DIR}"
++  else
++    nvm_default_install_dir
++  fi
++}
++
++nvm_latest_version() {
++  echo "v0.35.0"
++}
++
++nvm_profile_is_bash_or_zsh() {
++  local TEST_PROFILE
++  TEST_PROFILE="${1-}"
++  case "${TEST_PROFILE-}" in
++    *"/.bashrc" | *"/.bash_profile" | *"/.zshrc")
++      return
++    ;;
++    *)
++      return 1
++    ;;
++  esac
++}
++
++#
++# Outputs the location to NVM depending on:
++# * The availability of $NVM_SOURCE
++# * The method used ("script" or "git" in the script, defaults to "git")
++# NVM_SOURCE always takes precedence unless the method is "script-nvm-exec"
++#
++nvm_source() {
++  local NVM_METHOD
++  NVM_METHOD="$1"
++  local NVM_SOURCE_URL
++  NVM_SOURCE_URL="$NVM_SOURCE"
++  if [ "_$NVM_METHOD" = "_script-nvm-exec" ]; then
++    NVM_SOURCE_URL="https://raw.githubusercontent.com/nvm-sh/nvm/$(nvm_latest_version)/nvm-exec"
++  elif [ "_$NVM_METHOD" = "_script-nvm-bash-completion" ]; then
++    NVM_SOURCE_URL="https://raw.githubusercontent.com/nvm-sh/nvm/$(nvm_latest_version)/bash_completion"
++  elif [ -z "$NVM_SOURCE_URL" ]; then
++    if [ "_$NVM_METHOD" = "_script" ]; then
++      NVM_SOURCE_URL="https://raw.githubusercontent.com/nvm-sh/nvm/$(nvm_latest_version)/nvm.sh"
++    elif [ "_$NVM_METHOD" = "_git" ] || [ -z "$NVM_METHOD" ]; then
++      NVM_SOURCE_URL="https://github.com/nvm-sh/nvm.git"
++    else
++      echo >&2 "Unexpected value \"$NVM_METHOD\" for \$NVM_METHOD"
++      return 1
++    fi
++  fi
++  echo "$NVM_SOURCE_URL"
++}
++
++#
++# Node.js version to install
++#
++nvm_node_version() {
++  echo "$NODE_VERSION"
++}
++
++nvm_download() {
++  if nvm_has "curl"; then
++    curl --compressed -q "$@"
++  elif nvm_has "wget"; then
++    # Emulate curl with wget
++    ARGS=$(echo "$*" | command sed -e 's/--progress-bar /--progress=bar /' \
++                            -e 's/-L //' \
++                            -e 's/--compressed //' \
++                            -e 's/-I /--server-response /' \
++                            -e 's/-s /-q /' \
++                            -e 's/-o /-O /' \
++                            -e 's/-C - /-c /')
++    # shellcheck disable=SC2086
++    eval wget $ARGS
++  fi
++}
++
++install_nvm_from_git() {
++  local INSTALL_DIR
++  INSTALL_DIR="$(nvm_install_dir)"
++
++  if [ -d "$INSTALL_DIR/.git" ]; then
++    echo "=> nvm is already installed in $INSTALL_DIR, trying to update using git"
++    command printf '\r=> '
++    command git --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" fetch origin tag "$(nvm_latest_version)" --depth=1 2> /dev/null || {
++      echo >&2 "Failed to update nvm, run 'git fetch' in $INSTALL_DIR yourself."
++      exit 1
++    }
++  else
++    # Cloning to $INSTALL_DIR
++    echo "=> Downloading nvm from git to '$INSTALL_DIR'"
++    command printf '\r=> '
++    mkdir -p "${INSTALL_DIR}"
++    if [ "$(ls -A "${INSTALL_DIR}")" ]; then
++      command git init "${INSTALL_DIR}" || {
++        echo >&2 'Failed to initialize nvm repo. Please report this!'
++        exit 2
++      }
++      command git --git-dir="${INSTALL_DIR}/.git" remote add origin "$(nvm_source)" 2> /dev/null \
++        || command git --git-dir="${INSTALL_DIR}/.git" remote set-url origin "$(nvm_source)" || {
++        echo >&2 'Failed to add remote "origin" (or set the URL). Please report this!'
++        exit 2
++      }
++      command git --git-dir="${INSTALL_DIR}/.git" fetch origin tag "$(nvm_latest_version)" --depth=1 || {
++        echo >&2 'Failed to fetch origin with tags. Please report this!'
++        exit 2
++      }
++    else
++      command git -c advice.detachedHead=false clone "$(nvm_source)" -b "$(nvm_latest_version)" --depth=1 "${INSTALL_DIR}" || {
++        echo >&2 'Failed to clone nvm repo. Please report this!'
++        exit 2
++      }
++    fi
++  fi
++  command git -c advice.detachedHead=false --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" checkout -f --quiet "$(nvm_latest_version)"
++  if [ -n "$(command git --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" show-ref refs/heads/master)" ]; then
++    if command git --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" branch --quiet 2>/dev/null; then
++      command git --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" branch --quiet -D master >/dev/null 2>&1
++    else
++      echo >&2 "Your version of git is out of date. Please update it!"
++      command git --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" branch -D master >/dev/null 2>&1
++    fi
++  fi
++
++  echo "=> Compressing and cleaning up git repository"
++  if ! command git --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" reflog expire --expire=now --all; then
++    echo >&2 "Your version of git is out of date. Please update it!"
++  fi
++  if ! command git --git-dir="$INSTALL_DIR"/.git --work-tree="$INSTALL_DIR" gc --auto --aggressive --prune=now ; then
++    echo >&2 "Your version of git is out of date. Please update it!"
++  fi
++  return
++}
++
++#
++# Automatically install Node.js
++#
++nvm_install_node() {
++  local NODE_VERSION_LOCAL
++  NODE_VERSION_LOCAL="$(nvm_node_version)"
++
++  if [ -z "$NODE_VERSION_LOCAL" ]; then
++    return 0
++  fi
++
++  echo "=> Installing Node.js version $NODE_VERSION_LOCAL"
++  nvm install "$NODE_VERSION_LOCAL"
++  local CURRENT_NVM_NODE
++
++  CURRENT_NVM_NODE="$(nvm_version current)"
++  if [ "$(nvm_version "$NODE_VERSION_LOCAL")" == "$CURRENT_NVM_NODE" ]; then
++    echo "=> Node.js version $NODE_VERSION_LOCAL has been successfully installed"
++  else
++    echo >&2 "Failed to install Node.js $NODE_VERSION_LOCAL"
++  fi
++}
++
++install_nvm_as_script() {
++  local INSTALL_DIR
++  INSTALL_DIR="$(nvm_install_dir)"
++  local NVM_SOURCE_LOCAL
++  NVM_SOURCE_LOCAL="$(nvm_source script)"
++  local NVM_EXEC_SOURCE
++  NVM_EXEC_SOURCE="$(nvm_source script-nvm-exec)"
++  local NVM_BASH_COMPLETION_SOURCE
++  NVM_BASH_COMPLETION_SOURCE="$(nvm_source script-nvm-bash-completion)"
++
++  # Downloading to $INSTALL_DIR
++  mkdir -p "$INSTALL_DIR"
++  if [ -f "$INSTALL_DIR/nvm.sh" ]; then
++    echo "=> nvm is already installed in $INSTALL_DIR, trying to update the script"
++  else
++    echo "=> Downloading nvm as script to '$INSTALL_DIR'"
++  fi
++  nvm_download -s "$NVM_SOURCE_LOCAL" -o "$INSTALL_DIR/nvm.sh" || {
++    echo >&2 "Failed to download '$NVM_SOURCE_LOCAL'"
++    return 1
++  } &
++  nvm_download -s "$NVM_EXEC_SOURCE" -o "$INSTALL_DIR/nvm-exec" || {
++    echo >&2 "Failed to download '$NVM_EXEC_SOURCE'"
++    return 2
++  } &
++  nvm_download -s "$NVM_BASH_COMPLETION_SOURCE" -o "$INSTALL_DIR/bash_completion" || {
++    echo >&2 "Failed to download '$NVM_BASH_COMPLETION_SOURCE'"
++    return 2
++  } &
++  for job in $(jobs -p | command sort)
++  do
++    wait "$job" || return $?
++  done
++  chmod a+x "$INSTALL_DIR/nvm-exec" || {
++    echo >&2 "Failed to mark '$INSTALL_DIR/nvm-exec' as executable"
++    return 3
++  }
++}
++
++nvm_try_profile() {
++  if [ -z "${1-}" ] || [ ! -f "${1}" ]; then
++    return 1
++  fi
++  echo "${1}"
++}
++
++#
++# Detect profile file if not specified as environment variable
++# (eg: PROFILE=~/.myprofile)
++# The echo'ed path is guaranteed to be an existing file
++# Otherwise, an empty string is returned
++#
++nvm_detect_profile() {
++  if [ "${PROFILE-}" = '/dev/null' ]; then
++    # the user has specifically requested NOT to have nvm touch their profile
++    return
++  fi
++
++  if [ -n "${PROFILE}" ] && [ -f "${PROFILE}" ]; then
++    echo "${PROFILE}"
++    return
++  fi
++
++  local DETECTED_PROFILE
++  DETECTED_PROFILE=''
++
++  if [ -n "${BASH_VERSION-}" ]; then
++    if [ -f "$HOME/.bashrc" ]; then
++      DETECTED_PROFILE="$HOME/.bashrc"
++    elif [ -f "$HOME/.bash_profile" ]; then
++      DETECTED_PROFILE="$HOME/.bash_profile"
++    fi
++  elif [ -n "${ZSH_VERSION-}" ]; then
++    DETECTED_PROFILE="$HOME/.zshrc"
++  fi
++
++  if [ -z "$DETECTED_PROFILE" ]; then
++    for EACH_PROFILE in ".profile" ".bashrc" ".bash_profile" ".zshrc"
++    do
++      if DETECTED_PROFILE="$(nvm_try_profile "${HOME}/${EACH_PROFILE}")"; then
++        break
++      fi
++    done
++  fi
++
++  if [ -n "$DETECTED_PROFILE" ]; then
++    echo "$DETECTED_PROFILE"
++  fi
++}
++
++#
++# Check whether the user has any globally-installed npm modules in their system
++# Node, and warn them if so.
++#
++nvm_check_global_modules() {
++  command -v npm >/dev/null 2>&1 || return 0
++
++  local NPM_VERSION
++  NPM_VERSION="$(npm --version)"
++  NPM_VERSION="${NPM_VERSION:--1}"
++  [ "${NPM_VERSION%%[!-0-9]*}" -gt 0 ] || return 0
++
++  local NPM_GLOBAL_MODULES
++  NPM_GLOBAL_MODULES="$(
++    npm list -g --depth=0 |
++    command sed -e '/ npm@/d' -e '/ (empty)$/d'
++  )"
++
++  local MODULE_COUNT
++  MODULE_COUNT="$(
++    command printf %s\\n "$NPM_GLOBAL_MODULES" |
++    command sed -ne '1!p' |                     # Remove the first line
++    wc -l | command tr -d ' '                   # Count entries
++  )"
++
++  if [ "${MODULE_COUNT}" != '0' ]; then
++    # shellcheck disable=SC2016
++    echo '=> You currently have modules installed globally with `npm`. These will no'
++    # shellcheck disable=SC2016
++    echo '=> longer be linked to the active version of Node when you install a new node'
++    # shellcheck disable=SC2016
++    echo '=> with `nvm`; and they may (depending on how you construct your `$PATH`)'
++    # shellcheck disable=SC2016
++    echo '=> override the binaries of modules installed with `nvm`:'
++    echo
++
++    command printf %s\\n "$NPM_GLOBAL_MODULES"
++    echo '=> If you wish to uninstall them at a later point (or re-install them under your'
++    # shellcheck disable=SC2016
++    echo '=> `nvm` Nodes), you can remove them from the system Node as follows:'
++    echo
++    echo '     $ nvm use system'
++    echo '     $ npm uninstall -g a_module'
++    echo
++  fi
++}
++
++nvm_do_install() {
++  if [ -n "${NVM_DIR-}" ] && ! [ -d "${NVM_DIR}" ]; then
++    if [ -e "${NVM_DIR}" ]; then
++      echo >&2 "File \"${NVM_DIR}\" has the same name as installation directory."
++      exit 1
++    fi
++
++    if [ "${NVM_DIR}" = "$(nvm_default_install_dir)" ]; then
++      mkdir "${NVM_DIR}"
++    else
++      echo >&2 "You have \$NVM_DIR set to \"${NVM_DIR}\", but that directory does not exist. Check your profile files and environment."
++      exit 1
++    fi
++  fi
++  if [ -z "${METHOD}" ]; then
++    # Autodetect install method
++    if nvm_has git; then
++      install_nvm_from_git
++    elif nvm_has nvm_download; then
++      install_nvm_as_script
++    else
++      echo >&2 'You need git, curl, or wget to install nvm'
++      exit 1
++    fi
++  elif [ "${METHOD}" = 'git' ]; then
++    if ! nvm_has git; then
++      echo >&2 "You need git to install nvm"
++      exit 1
++    fi
++    install_nvm_from_git
++  elif [ "${METHOD}" = 'script' ]; then
++    if ! nvm_has nvm_download; then
++      echo >&2 "You need curl or wget to install nvm"
++      exit 1
++    fi
++    install_nvm_as_script
++  else
++    echo >&2 "The environment variable \$METHOD is set to \"${METHOD}\", which is not recognized as a valid installation method."
++    exit 1
++  fi
++
++  echo
++
++  local NVM_PROFILE
++  NVM_PROFILE="$(nvm_detect_profile)"
++  local PROFILE_INSTALL_DIR
++  PROFILE_INSTALL_DIR="$(nvm_install_dir | command sed "s:^$HOME:\$HOME:")"
++
++  SOURCE_STR="\\nexport NVM_DIR=\"${PROFILE_INSTALL_DIR}\"\\n[ -s \"\$NVM_DIR/nvm.sh\" ] && \\. \"\$NVM_DIR/nvm.sh\"  # This loads nvm\\n"
++
++  # shellcheck disable=SC2016
++  COMPLETION_STR='[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion\n'
++  BASH_OR_ZSH=false
++
++  if [ -z "${NVM_PROFILE-}" ] ; then
++    local TRIED_PROFILE
++    if [ -n "${PROFILE}" ]; then
++      TRIED_PROFILE="${NVM_PROFILE} (as defined in \$PROFILE), "
++    fi
++    echo "=> Profile not found. Tried ${TRIED_PROFILE-}~/.bashrc, ~/.bash_profile, ~/.zshrc, and ~/.profile."
++    echo "=> Create one of them and run this script again"
++    echo "   OR"
++    echo "=> Append the following lines to the correct file yourself:"
++    command printf "${SOURCE_STR}"
++    echo
++  else
++    if nvm_profile_is_bash_or_zsh "${NVM_PROFILE-}"; then
++      BASH_OR_ZSH=true
++    fi
++    if ! command grep -qc '/nvm.sh' "$NVM_PROFILE"; then
++      echo "=> Appending nvm source string to $NVM_PROFILE"
++      command printf "${SOURCE_STR}" >> "$NVM_PROFILE"
++    else
++      echo "=> nvm source string already in ${NVM_PROFILE}"
++    fi
++    # shellcheck disable=SC2016
++    if ${BASH_OR_ZSH} && ! command grep -qc '$NVM_DIR/bash_completion' "$NVM_PROFILE"; then
++      echo "=> Appending bash_completion source string to $NVM_PROFILE"
++      command printf "$COMPLETION_STR" >> "$NVM_PROFILE"
++    else
++      echo "=> bash_completion source string already in ${NVM_PROFILE}"
++    fi
++  fi
++  if ${BASH_OR_ZSH} && [ -z "${NVM_PROFILE-}" ] ; then
++    echo "=> Please also append the following lines to the if you are using bash/zsh shell:"
++    command printf "${COMPLETION_STR}"
++  fi
++
++  # Source nvm
++  # shellcheck source=/dev/null
++  \. "$(nvm_install_dir)/nvm.sh"
++
++  nvm_check_global_modules
++
++  nvm_install_node
++
++  nvm_reset
++
++  echo "=> Close and reopen your terminal to start using nvm or run the following to use it now:"
++  command printf "${SOURCE_STR}"
++  if ${BASH_OR_ZSH} ; then
++    command printf "${COMPLETION_STR}"
++  fi
++}
++
++#
++# Unsets the various functions defined
++# during the execution of the install script
++#
++nvm_reset() {
++  unset -f nvm_has nvm_install_dir nvm_latest_version nvm_profile_is_bash_or_zsh \
++    nvm_source nvm_node_version nvm_download install_nvm_from_git nvm_install_node \
++    install_nvm_as_script nvm_try_profile nvm_detect_profile nvm_check_global_modules \
++    nvm_do_install nvm_reset nvm_default_install_dir
++}
++
++[ "_$NVM_ENV" = "_testing" ] || nvm_do_install
++
++} # this ensures the entire script is downloaded #
+diff --git a/package.json b/package.json
+index a8ddff6..222834b 100644
+--- a/package.json
++++ b/package.json
+@@ -35,5 +35,17 @@
+     "awesome-typescript-loader": "^5.2.1",
+     "source-map-loader": "^0.2.4",
+     "typescript": "^3.2.4"
+-  }
+-}
++  },
++  "description": "<p align=\"center\"> <a href=\"https://www.insidesherpa.com/virtual-internships/prototype/R5iK7HMxJGBgaSbvk/Technology%20Virtual%20Experience\" target=\"_blank\"> <img src=\"https://insidesherpa-assets.s3-ap-southeast-2.amazonaws.com/icons/jpmorgan/github+repo+images/jpmc+github+img.png\"> \t</a> </p>",
++  "main": "index.js",
++  "repository": {
++    "type": "git",
++    "url": "git+https://github.com/lilning/JPMC-tech-task-2-PY3.git"
++  },
++  "author": "",
++  "license": "ISC",
++  "bugs": {
++    "url": "https://github.com/lilning/JPMC-tech-task-2-PY3/issues"
++  },
++  "homepage": "https://github.com/lilning/JPMC-tech-task-2-PY3#readme"
++}
+\ No newline at end of file
+diff --git a/src/App.tsx b/src/App.tsx
+index 0728518..686d2ad 100755
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -8,6 +8,7 @@ import './App.css';
+  */
+ interface IState {
+   data: ServerRespond[],
++  showGraph: boolean,
+ }
+ 
+ /**
+@@ -22,6 +23,7 @@ class App extends Component<{}, IState> {
+       // data saves the server responds.
+       // We use this state to parse data down to the child element (Graph) as element property
+       data: [],
++      showGraph: false,
+     };
+   }
+ 
+@@ -29,18 +31,31 @@ class App extends Component<{}, IState> {
+    * Render Graph react component with state.data parse as property data
+    */
+   renderGraph() {
+-    return (<Graph data={this.state.data}/>)
++    if (this.state.showGraph) {
++      return (<Graph data={this.state.data} />)
++    }
+   }
+ 
+   /**
+    * Get new data from server and update the state with the new data
+    */
++
+   getDataFromServer() {
+-    DataStreamer.getData((serverResponds: ServerRespond[]) => {
+-      // Update the state by creating a new array of data that consists of
+-      // Previous data in the state and the new data from server
+-      this.setState({ data: [...this.state.data, ...serverResponds] });
+-    });
++    let x = 0;
++    const interval = setInterval(() => {
++      DataStreamer.getData((serverResponds: ServerRespond[]) => {
++        // Update the state by creating a new array of data that consists of
++        // Previous data in the state and the new data from server
++        this.setState({
++          data: serverResponds,
++          showGraph: true,
++        });
++      });
++      x++;
++      if (x > 1000) {
++        clearInterval(interval);
++      }
++    }, 100);
+   }
+ 
+   /**
+@@ -59,7 +74,7 @@ class App extends Component<{}, IState> {
+             // As part of your task, update the getDataFromServer() function
+             // to keep requesting the data every 100ms until the app is closed
+             // or the server does not return anymore data.
+-            onClick={() => {this.getDataFromServer()}}>
++            onClick={() => { this.getDataFromServer() }}>
+             Start Streaming Data
+           </button>
+           <div className="Graph">
+diff --git a/src/Graph.tsx b/src/Graph.tsx
+index ec1430e..616c1fe 100644
+--- a/src/Graph.tsx
++++ b/src/Graph.tsx
+@@ -14,7 +14,7 @@ interface IProps {
+  * Perspective library adds load to HTMLElement prototype.
+  * This interface acts as a wrapper for Typescript compiler.
+  */
+-interface PerspectiveViewerElement {
++interface PerspectiveViewerElement extends HTMLElement {
+   load: (table: Table) => void,
+ }
+ 
+@@ -32,7 +32,7 @@ class Graph extends Component<IProps, {}> {
+ 
+   componentDidMount() {
+     // Get element to attach the table from the DOM.
+-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
++    const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+ 
+     const schema = {
+       stock: 'string',
+@@ -41,7 +41,7 @@ class Graph extends Component<IProps, {}> {
+       timestamp: 'date',
+     };
+ 
+-    if (window.perspective && window.perspective.worker()) {
++    if (window.perspective) {
+       this.table = window.perspective.worker().table(schema);
+     }
+     if (this.table) {
+@@ -49,6 +49,16 @@ class Graph extends Component<IProps, {}> {
+ 
+       // Add more Perspective configurations here.
+       elem.load(this.table);
++      elem.setAttribute('view', 'y_line')
++      elem.setAttribute('column-pivots', '["stock"]')
++      elem.setAttribute('row-pivots', '["timestamp"]')
++      elem.setAttribute('columns', '["top_ask_price"]')
++      elem.setAttribute('aggregates', `
++        {"stock": "distinct count", 
++        "top_ask_price": "avg",
++        "top_bid_price": "avg", 
++        "timestamp": "distinct count"}`
++      )
+     }
+   }
+ 
+-- 
+2.30.1 (Apple Git-130)
+
